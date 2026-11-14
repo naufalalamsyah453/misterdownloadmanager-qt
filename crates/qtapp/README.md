@@ -14,6 +14,15 @@ Needs Qt 6.4+ (Core, Gui, Qml, Quick, Quick Controls 2), CMake and libclang. The
 for Rust 1.98; with an older compiler, add `--ignore-rust-version` (the Qt crate itself doesn't
 need 1.98, the engine's `browser-connection` feature does).
 
+## Release (Linux AppImage)
+
+`tools/installer/build-linux-qt.sh` builds `MisterDownloadManager-Qt-<version>-linux-x86_64.AppImage`
+(with its `.zsync` and checksums) into `target/dist/`: linuxdeploy and its Qt plugin copy Qt 6, the
+platform plugins and the QML modules the window imports into the AppImage. The workflow
+[`release-qt.yml`](../../.github/workflows/release-qt.yml) runs it on GitHub: push a tag
+`vX.Y.Z` and it publishes the release; "Run workflow" only builds and keeps the files as an
+artifact. It is built on Ubuntu 24.04 (Qt 6.4), so it needs glibc 2.39 or newer.
+
 ## Layout
 
 | Path | What it is |

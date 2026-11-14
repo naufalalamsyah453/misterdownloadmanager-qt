@@ -1,0 +1,71 @@
+# The Qt edition's Linux AppImage (tools/installer/build-linux-qt.sh).
+# A `vX.Y.Z` tag builds it and publishes a GitHub release with the AppImage, its .zsync (updates
+# through AppImageLauncher, Gear Lever, AppImageUpdate) and the checksums. Run by hand
+# (workflow_dispatch) it only builds, and keeps the files as the run's artifact.
+name: release-qt
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux-appimage:
+    # Ubuntu 24.04 brings Qt 6.4: the AppImage runs on its glibc (2.39) and newer.
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write # publishes the release on a tag
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - name: Toolchain
+        run: rustup show active-toolchain || rustup toolchain install
+
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: release-qt-${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
+          restore-keys: release-qt-${{ runner.os }}-cargo-
+
+      - name: Qt 6, libraries and packaging tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qt6-base-dev qt6-declarative-dev \
+            qml6-module-qtquick qml6-module-qtquick-controls qml6-module-qtquick-layouts \
+            qml6-module-qtquick-window qml6-module-qtquick-templates qml6-module-qtquick-dialogs \
+            qml6-module-qtqml qml6-module-qtqml-workerscript \
+            libgl1-mesa-dev libxkbcommon-dev libwayland-dev cmake libclang-dev \
+            python3-pil zsync file
+
+      - name: The window's tests
+        run: cargo test -p mdm-qt
+
+      - name: AppImage
+        env:
+          GH_TOKEN: ${{ github.token }} # downloads linuxdeploy signed in (fetch_release.py)
+          MDM_QT_REPO: ${{ github.repository }}
+        run: bash tools/installer/build-linux-qt.sh
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: linux-qt
+          path: target/dist/*
+
+      - name: Publish the release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          gh release create "$TAG" target/dist/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Mister Download Manager (Qt) $TAG" \
+            --notes "Qt 6 / QML edition, experimental: not every feature of the egui app is here yet (see crates/qtapp/README.md#status). Linux AppImage: make it executable and run it. Needs glibc 2.39 or newer (Ubuntu 24.04, Fedora 40, Debian 13)."
