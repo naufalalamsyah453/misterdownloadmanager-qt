@@ -1,5 +1,15 @@
 # Mister Download Manager
 
+> [!NOTE]
+> **This is the Qt edition (fork).** The window, dialogs and every control are rebuilt with
+> **Qt 6 / QML** through [cxx-qt](https://github.com/KDAB/cxx-qt), in a new crate,
+> [`crates/qtapp`](crates/qtapp) (`misterdownloadmanager-qt`). The download engine
+> ([`mdm-engine`](crates/engine)) is unchanged and runs underneath it. The original egui app
+> (`mdm-app`) stays in the tree while the Qt window grows to match it, so nothing is lost on the way.
+> What is done and what is not: [Qt edition status](crates/qtapp/README.md#status).
+> Upstream: [anefzaoui/misterdownloadmanager](https://github.com/anefzaoui/misterdownloadmanager).
+
+
 <p align="center">
   <img src="docs/images/logo.png" alt="Mister Download Manager's logo" width="160">
 </p>
@@ -363,6 +373,19 @@ working, not a copy of anyone's software.
 <details>
 <summary><b>Build from source</b></summary>
 
+**The Qt edition** needs Qt 6.4 or later with QML and Quick Controls (Ubuntu/Debian:
+`sudo apt install qt6-base-dev qt6-declarative-dev qml6-module-qtquick-controls
+qml6-module-qtquick-layouts qml6-module-qtquick-window qml6-module-qtquick-templates
+qml6-module-qtquick-dialogs qml6-module-qtqml-workerscript libclang-dev cmake`), then:
+
+```
+cargo run -p mdm-qt
+```
+
+Details, the layout of the crate and its status: [crates/qtapp/README.md](crates/qtapp/README.md).
+
+**The egui app and the rest of the workspace:**
+
 Requires Rust stable 1.98 or later (the MSVC toolchain on Windows), and for the engine's
 browser-like connection (BoringSSL, built from source): CMake, LLVM's libclang and, on Windows,
 NASM (`winget install Kitware.CMake LLVM.LLVM NASM.NASM`; on Linux `cmake` and
@@ -399,6 +422,7 @@ pieces fit.
 |---|---|
 | [`mdm-engine`](crates/engine) | The download engine: segmentation, connections, resume, limits |
 | [`mdm-app`](crates/app) | The desktop app (egui), and `--headless` for servers |
+| [`mdm-qt`](crates/qtapp) | The desktop app rebuilt with Qt 6 / QML (cxx-qt) on the same engine |
 | [`mdm-cli`](crates/cli) | Headless downloads from the command line |
 | [`mdm-mcp`](crates/mcp) | The MCP server, for AI assistants |
 | [`mdm-nmhost`](crates/nmhost) | The browser's native messaging host |

@@ -987,6 +987,13 @@ These ship in a later version, when they're ready.
 
 ### Being built
 
+- 🔄 **Qt edition**: the window rebuilt with Qt 6 / QML (`crates/qtapp`) on the unchanged engine.
+  Done: the main window (toolbar, category sidebar, search, download list with progress, speed
+  and time left, right-click menu, status bar), Add URL, pause, resume and remove, light and dark
+  with the system. Left: the progress window, options, scheduler and queues, torrents and videos,
+  link grabber, tray, translations (86 languages, through `crate::i18n`), themes, browser
+  integration and the remote control.
+
 - 🔄 Linux, what's left ([#164](https://github.com/anefzaoui/misterdownloadmanager/issues/164)):
   screen readers (Orca) reading MDM's windows; browsers installed as a Flatpak (Firefox from
   Flathub may reach MDM through the desktop, as the Snap does: to check); native Wayland windows
